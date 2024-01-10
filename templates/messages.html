@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Messages</title>
+</head>
+<body>
+    <h1>Conversation</h1>
+    <div id="message-list">
+        {% for message in messages %}
+            <div class="message">
+                <strong>{{ message.pseudo }} ({{ message.ip_address }})</strong>
+                <p>{{ message.content }}</p>
+                <span>{{ message.timestamp }}</span>
+            </div>
+        {% endfor %}
+    </div>
+</body>
+</html>
