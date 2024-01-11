@@ -7,48 +7,89 @@
     <title>Envoyer un Message</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Arial', sans-serif;
             background-color: #f0f0f0;
             margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+        
+        #message-list {
+            flex-grow: 1;
+            overflow-y: auto;
             padding: 20px;
+            display: flex;
+            flex-direction: column; /* Assurez-vous que c'est 'column' et non 'column-reverse' */
+            border-bottom: 2px solid #ddd;
+        }        
+
+        .message {
+            background-color: #fff;
+            border-radius: 5px;
+            padding: 10px;
+            margin-bottom: 10px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
         }
 
-        h1 {
-            text-align: center;
-            margin-bottom: 20px;
+        .message strong {
+            color: #333;
+        }
+
+        .message span {
+            font-size: 0.8em;
+            color: #666;
         }
 
         form {
             max-width: 600px;
             margin: 0 auto;
-            background-color: #fff;
-            border: 1px solid #ddd;
-            border-radius: 5px;
             padding: 20px;
+            background-color: #fff;
         }
 
-        label {
+        form label {
             display: block;
             font-weight: bold;
             margin-bottom: 5px;
         }
 
-        input[type="text"],
-        textarea {
-            width: 95%;
+        form input[type="text"],
+        form textarea {
+            width: calc(100% - 20px);
             padding: 10px;
             margin-bottom: 10px;
             border: 1px solid #ddd;
             border-radius: 5px;
         }
 
-        input[type="submit"] {
+        form input[type="submit"] {
             background-color: #007bff;
             color: #fff;
             border: none;
             padding: 10px 20px;
             border-radius: 5px;
             cursor: pointer;
+            float: right; /* Aligner le bouton à droite */
+            clear: both; /* Éviter que le bouton soit à côté d'autres éléments */
+        }
+
+        #group {
+            margin-bottom: 20px;
+        }
+
+        /* Ajouter des styles supplémentaires pour la responsivité */
+        @media (max-width: 768px) {
+            form, #message-list {
+                width: 100%;
+                max-width: none;
+            }
+
+            form input[type="submit"] {
+                width: 100%;
+                margin-top: 10px;
+            }
         }
     </style>
 </head>
@@ -62,9 +103,8 @@
                 <span>{{ message.timestamp }}</span>
             </div>
         {% endfor %}
-    </div>    
+    </div>
 
-    <h2>Envoyer un Message</h2>
     <form method="POST">
         <label for="pseudo">Pseudo:</label>
         <input type="text" id="pseudo" name="pseudo">
@@ -78,7 +118,7 @@
             {% for group in groups %}
                 <option value="{{ group.id }}">{{ group.name }}</option>
             {% endfor %}
-        </select>
+        </select>         
 
         <input type="submit" value="Envoyer">
     </form>
