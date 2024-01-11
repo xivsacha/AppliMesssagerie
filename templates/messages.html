@@ -47,14 +47,16 @@
     </style>
 </head>
 <body>
-    <h1>Conversation</h1>
+    <h1>Conversation {{ conversation_id }}</h1>
     <div id="message-list">
         {% for message in messages %}
-            <div class="message">
-                <strong>{{ message.pseudo }} ({{ message.ip_address }})</strong>
-                <p>{{ message.content }}</p>
-                <span>{{ message.timestamp }}</span>
-            </div>
+            {% if message.conversation_id == conversation_id %}
+                <div class="message">
+                    <strong>{{ message.pseudo }} ({{ message.ip_address }})</strong>
+                    <p>{{ message.content }}</p>
+                    <span>{{ message.timestamp }}</span>
+                </div>
+            {% endif %}
         {% endfor %}
     </div>
 </body>
