@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gérer les Groupes</title>
+    <style>
+        /* Styles CSS pour la gestion des groupes (à personnaliser selon vos besoins) */
+    </style>
+</head>
+<body>
+    <h1>Gérer les Groupes</h1>
+    <h2>Liste des Groupes</h2>
+    <ul>
+        {% for group in groups %}
+            <li>{{ group.name }}</li>
+        {% endfor %}
+    </ul>    
+
+    <h2>Créer un Nouveau Groupe</h2>
+    <form method="POST">
+        <label for="group_name">Nom du Groupe:</label>
+        <input type="text" id="group_name" name="group_name">
+        <input type="submit" value="Créer">
+    </form>
+</body>
+</html>

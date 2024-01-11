@@ -5,17 +5,144 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Envoyer un Message</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+        
+        #message-list {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column; /* Assurez-vous que c'est 'column' et non 'column-reverse' */
+            border-bottom: 2px solid #ddd;
+        }        
+
+        .message {
+            background-color: #fff;
+            border-radius: 5px;
+            padding: 10px;
+            margin-bottom: 10px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .message strong {
+            color: #333;
+        }
+
+        .message span {
+            font-size: 0.8em;
+            color: #666;
+        }
+
+        form {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #fff;
+        }
+
+        form label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        form input[type="text"],
+        form textarea {
+            width: calc(100% - 20px);
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        form input[type="submit"] {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            float: right; /* Aligner le bouton à droite */
+            clear: both; /* Éviter que le bouton soit à côté d'autres éléments */
+        }
+
+        #group {
+            margin-bottom: 20px;
+        }
+
+        /* Ajouter des styles supplémentaires pour la responsivité */
+        @media (max-width: 768px) {
+            form, #message-list {
+                width: 100%;
+                max-width: none;
+            }
+
+            form input[type="submit"] {
+                width: 100%;
+                margin-top: 10px;
+            }
+        }
+    </style>
 </head>
 <body>
-    <h1>Envoyer un Message</h1>
+    <h1>Conversation</h1>
+    <div id="message-list">
+        {% for message in messages %}
+            <div class="message">
+                <strong>{{ message.pseudo }} ({{ message.ip_address }})</strong>
+                <p>{{ message.content }}</p>
+                <span>{{ message.timestamp }}</span>
+            </div>
+        {% endfor %}
+    </div>
+
     <form method="POST">
-        <label for="pseudo">Pseudo:</label><br>
-        <input type="text" id="pseudo" name="pseudo"><br>
-    
-        <label for="content">Message:</label><br>
-        <textarea id="content" name="content" rows="4" cols="50"></textarea><br>
-    
+        <label for="pseudo">Pseudo:</label>
+        <input type="text" id="pseudo" name="pseudo">
+
+        <label for="content">Message:</label>
+        <textarea id="content" name="content" rows="4" cols="50"></textarea>
+
+        <label for="group">Sélectionner une Conversation:</label>
+        <select id="group" name="group">
+            <option value="default">Choisissez une conversation</option>
+            {% for group in groups %}
+                <option value="{{ group.id }}">{{ group.name }}</option>
+            {% endfor %}
+        </select>         
+
         <input type="submit" value="Envoyer">
-    </form>    
+    </form>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const groupSelector = document.getElementById('group');
+            
+            function addGroupOptions() {
+                fetch('/get_groups')
+                    .then(response => response.json())
+                    .then(groups => {
+                        groupSelector.innerHTML = '';
+        
+                        groups.forEach(group => {
+                            const option = document.createElement('option');
+                            option.value = group.id;
+                            option.textContent = group.name;
+                            groupSelector.appendChild(option);
+                        });
+                    });
+            }
+        
+            addGroupOptions();
+        });        
+    </script>
 </body>
 </html>

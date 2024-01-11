@@ -1,43 +1,58 @@
-from flask import Flask, redirect, request, render_template, url_for
+from flask import Flask, jsonify, redirect, render_template, request, url_for
 from flask_sqlalchemy import SQLAlchemy
-from datetime import datetime
+from config import Config
+from models import db, Message, Group, Member
+from flask_migrate import Migrate
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///messages.db'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-db = SQLAlchemy(app)
+app.config.from_object(Config)
 
-class Message(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    content = db.Column(db.String(200), nullable=False)
-    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
-    pseudo = db.Column(db.String(50))
-    ip_address = db.Column(db.String(15))
+db.init_app(app)
+migrate = Migrate(app, db)
 
-    def __repr__(self):
-        return f'<Message {self.id}>'
-    
 @app.route('/', methods=['GET', 'POST'])
 def index():
     if request.method == 'POST':
         pseudo = request.form['pseudo']
-        ip_address = request.remote_addr
         message_content = request.form['content']
+        conversation_id = request.form['group']
+        ip_address = request.remote_addr
 
-        message = Message(pseudo=pseudo, content=message_content, ip_address=ip_address)
+        message = Message(pseudo=pseudo, content=message_content, group_id=conversation_id, ip_address=ip_address)
         db.session.add(message)
         db.session.commit()
 
-        return redirect(url_for('index'))
-    return render_template('index.html')
+        return redirect(url_for('index', group=conversation_id))
 
+    all_groups = Group.query.all()
+    conversation_id = request.args.get('group')
 
-@app.route('/messages')
-def messages():
-    all_messages = Message.query.order_by(Message.timestamp.asc()).all()
-    return render_template('messages.html', messages=all_messages)
+    messages = []
+    if conversation_id:
+        messages = Message.query.filter_by(group_id=conversation_id).order_by(Message.timestamp.asc()).all()
+
+    return render_template('index.html', messages=messages, groups=all_groups, conversation_id=conversation_id)
+
+@app.route('/group', methods=['GET', 'POST'])
+def group():
+    if request.method == 'POST':
+        group_name = request.form['group_name']
+
+        new_group = Group(name=group_name)
+        db.session.add(new_group)
+        db.session.commit()
+
+    all_groups = Group.query.all()
+
+    return render_template('group.html', groups=all_groups)
+
+@app.route('/get_groups', methods=['GET'])
+def get_groups():
+    all_groups = Group.query.all()
+    groups_data = [{'id': group.id, 'name': group.name} for group in all_groups]
+    return jsonify(groups_data)
 
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
-    app.run(debug=True)
+    app.run(host='172.20.10.4', port=5000)
