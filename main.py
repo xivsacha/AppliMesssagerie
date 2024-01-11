@@ -1,10 +1,14 @@
-from flask import Flask, redirect, request, render_template, url_for, jsonify
-from models import Group, db, Message
+from flask import Flask, jsonify, redirect, render_template, request, url_for
+from flask_sqlalchemy import SQLAlchemy
+from config import Config
+from models import db, Message, Group, Member
+from flask_migrate import Migrate
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///messages.db'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config.from_object(Config)
+
 db.init_app(app)
+migrate = Migrate(app, db)
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
@@ -12,8 +16,9 @@ def index():
         pseudo = request.form['pseudo']
         message_content = request.form['content']
         conversation_id = request.form['group']
+        ip_address = request.remote_addr
 
-        message = Message(pseudo=pseudo, content=message_content, group_id=conversation_id)
+        message = Message(pseudo=pseudo, content=message_content, group_id=conversation_id, ip_address=ip_address)
         db.session.add(message)
         db.session.commit()
 
@@ -50,4 +55,4 @@ def get_groups():
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
-    app.run(debug=True, port=5001)
+    app.run(host='172.20.10.4', port=5000)
