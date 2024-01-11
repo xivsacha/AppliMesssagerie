@@ -1,6 +1,5 @@
 from flask import Flask, redirect, request, render_template, url_for
-from config import db
-from models import Message
+from models import db, Message
 from datetime import datetime
 
 app = Flask(__name__)
@@ -21,6 +20,11 @@ def index():
 
         return redirect(url_for('index'))
     return render_template('index.html')
+
+@app.route('/messages')
+def messages():
+    all_messages = Message.query.order_by(Message.timestamp.asc()).all()
+    return render_template('messages.html', messages=all_messages)
 
 if __name__ == '__main__':
     with app.app_context():
