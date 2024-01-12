@@ -3,12 +3,19 @@ from flask_sqlalchemy import SQLAlchemy
 from config import Config
 from models import db, Message, Group, Member
 from flask_migrate import Migrate
+from ntplib import NTPClient
+from datetime import datetime
 
 app = Flask(__name__)
 app.config.from_object(Config)
 
 db.init_app(app)
 migrate = Migrate(app, db)
+ntp_client = NTPClient()
+
+def get_ntp_time():
+    response = ntp_client.request('pool.ntp.org', version=4)
+    return datetime.utcfromtimestamp(response.tx_time)
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
@@ -17,8 +24,9 @@ def index():
         message_content = request.form['content']
         conversation_id = request.form['group']
         ip_address = request.remote_addr
+        timestamp = get_ntp_time()
 
-        message = Message(pseudo=pseudo, content=message_content, group_id=conversation_id, ip_address=ip_address)
+        message = Message(pseudo=pseudo, content=message_content, group_id=conversation_id, ip_address=ip_address, timestamp=timestamp)
         db.session.add(message)
         db.session.commit()
 
