@@ -55,4 +55,4 @@ def get_groups():
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
-    app.run(host='172.20.10.4', port=5000)
+    app.run(host='192.168.70.34', port=5000)
